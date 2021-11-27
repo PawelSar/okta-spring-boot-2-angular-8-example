@@ -2,23 +2,24 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { CarListComponent } from './car-list/car-list.component';
 import { CarEditComponent } from './car-edit/car-edit.component';
-import { OktaAuthGuard } from '@okta/okta-angular';
+import { GoogleCalendarComponent } from './google-calendar/google-calendar.component';
 
 const routes: Routes = [
   {
     path: 'car-list',
-    component: CarListComponent,
-    canActivate: [OktaAuthGuard]
+    component: CarListComponent
   },
   {
     path: 'car-add',
-    component: CarEditComponent,
-    canActivate: [OktaAuthGuard]
+    component: CarEditComponent
   },
+    {
+      path: 'gcal',
+      component: GoogleCalendarComponent
+    },
   {
     path: 'car-edit/:id',
-    component: CarEditComponent,
-    canActivate: [OktaAuthGuard]
+    component: CarEditComponent
   }
 ];
 
