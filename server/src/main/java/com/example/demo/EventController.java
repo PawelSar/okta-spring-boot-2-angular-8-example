@@ -45,19 +45,21 @@ public class EventController {
     @PostMapping("/event")
     public EventData saveEvent(final @RequestBody EventData eventData) throws PushoverException {
 
-//        PushoverClient client = new PushoverRestClient();
-//
-//        Status result = client.pushMessage(PushoverMessage.builderWithApiToken("au24m39a8e262t3n3uw7gs6o5xp8o4")
-//                .setUserId("utym8nw7j6gd2vyqk3ft4r3d5zsgwz")
-//                .setMessage("Wydarzenie: ["+ eventData.getTitle() + "] Zaczyna się: "+ eventData.getStartDate())
-//                .setPriority(MessagePriority.NORMAL) // HIGH|NORMAL|QUIET
-//                .setTitle("Kalendarz")
-//                .setUrl("http://31.179.37.99:4200/")
-//                .setTitleForURL("Kalendarz online")
-//                .setSound("magic")
-//                .build());
-//
-//        System.out.println(String.format("status: %d, request id: %s", result.getStatus(), result.getRequestId()));
+        PushoverClient client = new PushoverRestClient();
+
+        String eventTitle = eventData.getTitle();
+
+        Status result = client.pushMessage(PushoverMessage.builderWithApiToken("au24m39a8e262t3n3uw7gs6o5xp8o4")
+                .setUserId("utym8nw7j6gd2vyqk3ft4r3d5zsgwz")
+                .setMessage("Wydarzenie: ["+ eventTitle + "] Zaczyna sie: "+ eventData.getStartDate())
+                .setPriority(MessagePriority.NORMAL) // HIGH|NORMAL|QUIET
+                .setTitle("Kalendarz")
+                .setUrl("http://31.179.37.99:4200/")
+                .setTitleForURL("Kalendarz online")
+                .setSound("magic")
+                .build());
+
+        System.out.println(String.format("status: %d, request id: %s", result.getStatus(), result.getRequestId()));
 
 
         return eventService.saveEvent(eventData);
