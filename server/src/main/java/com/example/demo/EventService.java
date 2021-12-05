@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import org.springframework.data.jpa.repository.Query;
+
 import java.util.List;
 
 public interface EventService {
@@ -9,5 +11,7 @@ public interface EventService {
     List<EventData> getAllEvents();
     EventData getEventById(final Long customerId);
     EventData getOne(final Long customerId);
+    List<Event> getAllEventsByType(String type);
+
 
 }

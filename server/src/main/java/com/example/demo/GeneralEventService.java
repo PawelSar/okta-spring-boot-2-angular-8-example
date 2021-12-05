@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -37,6 +38,13 @@ public class GeneralEventService implements EventService {
     public EventData getOne(Long eventId) {
         Event ev = eventRepository.getOne(eventId);
         return populateEventData(ev);
+    }
+    public List<Event> getAllEventsByType(String type) {
+
+        System.out.println(type);
+
+
+return eventRepository.getAllEventsByType(type);
     }
 
     /**
