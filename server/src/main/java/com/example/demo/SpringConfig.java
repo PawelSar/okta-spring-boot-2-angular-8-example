@@ -22,14 +22,17 @@ public class SpringConfig {
     @Resource(name = "eventService")
     private EventService eventService;
 
-    @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelay = 1500000)
     public void scheduleFixedDelayTask() {
 
         List<EventData> eventData = eventService.getAllEvents();
         Date d1 = new Date();
+        int minutesBefore = 0;
         for(EventData event : eventData){
 
-            String sDate1="2021-11-16 07:30:00";
+            if(event.getReminderTimeBefore().isEmpty() || event.getReminderTimeBefore() == "" || event.getReminderTimeBefore() == null){
+                continue;
+            }
 
             Date date2 = null;
             try {
@@ -39,19 +42,21 @@ public class SpringConfig {
             }
             Date d2 = date2;
 
+            minutesBefore = Integer.valueOf(event.getReminderTimeBefore());
 
-            if(event.getReminder().equals("true") && TimeUnit.MILLISECONDS.toMinutes((d2.getTime() - d1.getTime())) < 15 && TimeUnit.MILLISECONDS.toMinutes((d2.getTime() - d1.getTime())) > 5){
+
+            if(event.getReminder().equals("true") && TimeUnit.MILLISECONDS.toMinutes((d2.getTime() - d1.getTime())) < minutesBefore+15 && TimeUnit.MILLISECONDS.toMinutes((d2.getTime() - d1.getTime())) > minutesBefore-5){
 
                         PushoverClient client = new PushoverRestClient();
 
                 Status result = null;
                 try {
                     result = client.pushMessage(PushoverMessage.builderWithApiToken("au24m39a8e262t3n3uw7gs6o5xp8o4")
-                            .setUserId("utym8nw7j6gd2vyqk3ft4r3d5zsgwz")
+                            .setUserId("g4y4x1iupu8eyqnhe9jx8eied2uynu")
                             .setMessage("Wydarzenie: ["+ event.getTitle() + "] Rozpocznie sie za " +  TimeUnit.MILLISECONDS.toMinutes((d2.getTime() - d1.getTime())) + " minut")
                             .setPriority(MessagePriority.NORMAL)
                             .setTitle("Kalendarz")
-                            .setUrl("http://31.179.37.99:4200/")
+                            .setUrl("http://31.179.30.71:4200/")
                             .setTitleForURL("Kalendarz online")
                             .setSound("magic")
                             .build());

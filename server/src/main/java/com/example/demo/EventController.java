@@ -4,10 +4,12 @@ import net.pushover.client.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
 
 @RestController
 @RequestMapping("/events")
@@ -25,9 +27,110 @@ public class EventController {
     @GetMapping
     public List<EventData> getEvents(){
 
+        List<EventData> eventsToDisplay = new ArrayList<>();
+        List<String> daysRecurring = new ArrayList<>();
+
+
         List<EventData> eventData = eventService.getAllEvents();
 
-        return eventData;
+        for(EventData event : eventData){
+            if(event.getGroupId() == "" || event.getGroupId().isEmpty()){
+                eventsToDisplay.add(event);
+                continue;
+            }
+
+            LocalDate start = LocalDate.of( Integer.valueOf(event.getRecurStartDate().substring(0,4)) , Integer.valueOf(event.getRecurStartDate().substring(5,7)) , Integer.valueOf(event.getRecurStartDate().substring(8,10)) );
+            LocalDate stop = LocalDate.of( Integer.valueOf(event.getRecurEndDate().substring(0,4)) , Integer.valueOf(event.getRecurEndDate().substring(5,7)) , Integer.valueOf(event.getRecurEndDate().substring(8,10)) );
+
+            daysRecurring = Arrays.asList(event.getDaysRecurring().split(","));
+
+            if(daysRecurring.contains("0")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.SUNDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("1")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.MONDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("2")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.TUESDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("3")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.WEDNESDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("4")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.THURSDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("5")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.FRIDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("6")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.SATURDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+        }
+        return eventsToDisplay;
+    }
+
+    private EventData generateNewEvent(EventData event, LocalDate day) {
+
+        String dayOfMonth = "";
+        if(String.valueOf(day.getDayOfMonth()).length() == 2){
+            dayOfMonth = String.valueOf(day.getDayOfMonth());
+        } else {
+            dayOfMonth = "0"+String.valueOf(day.getDayOfMonth());
+        }
+
+        String monthOfYear = "";
+        if(String.valueOf(day.getMonthValue()).length() == 2){
+            monthOfYear = String.valueOf(day.getMonthValue());
+        } else {
+            monthOfYear = "0"+String.valueOf(day.getMonthValue());
+        }
+
+        EventData newEvent = new EventData();
+        newEvent.setEventColor(event.getEventColor());
+        newEvent.setDaysRecurring(event.getDaysRecurring());
+        newEvent.setReminderTimeBefore(event.getReminderTimeBefore());
+        newEvent.setTitle(event.getTitle());
+        newEvent.setRecurEndDate(event.getRecurEndDate());
+        newEvent.setRecurStartDate(event.getRecurStartDate());
+        newEvent.setGroupId(event.getGroupId());
+        newEvent.setReminder(event.getReminder());
+        newEvent.setId(event.getId());
+        newEvent.setDescription(event.getDescription());
+
+        newEvent.setCreatedDate(event.getCreatedDate());
+        newEvent.setCreator(event.getCreator());
+        newEvent.setStartDate(""+day.getYear()+"-"+monthOfYear+"-"+dayOfMonth+event.getStartDate().substring(10));
+        newEvent.setEndDate(""+day.getYear()+"-"+monthOfYear+"-"+dayOfMonth+event.getEndDate().substring(10));
+
+        return newEvent;
     }
 
     /**
@@ -38,28 +141,25 @@ public class EventController {
     @GetMapping("/specificEvents/{id}")
     public List<EventData> getParticularEvents(@PathVariable String id){
 
-        System.out.println(id);
+        if(id.isEmpty()){
+            return new ArrayList<EventData>();
+        }
+
         String[] idArray;
+
         if(id.isEmpty() || id == "" || id.equalsIgnoreCase("")){
             idArray = new String[]{"1", "2", "3", "4", "5"};
         } else {
-            idArray = id.split(",");
+            Set<String> mySet = new HashSet<String>(Arrays.asList(id.split(",")));
+            idArray = mySet.toArray(new String[mySet.size()]);
         }
 
         Map<String, String> colorsMap = new HashMap<String, String>();
-
-        colorsMap.put("1","#2e86c1");
-        colorsMap.put("2","#f0b27a");
-        colorsMap.put("3","#C70039");
-        colorsMap.put("4","#d2b4de");
-        colorsMap.put("5","#489487");
-
-
-
-
-
-
-
+        colorsMap.put("1","magdaPraca");
+        colorsMap.put("2","pawelPraca");
+        colorsMap.put("3","wazne");
+        colorsMap.put("4","zadanie");
+        colorsMap.put("5","inne");
 
         List < EventData > events = new ArrayList< >();
 
@@ -69,6 +169,22 @@ public class EventController {
 
                 EventData eventData = new EventData();
                 eventData.setId(event.getId());
+
+                if (event.getGroupId() != null && !event.getGroupId().equalsIgnoreCase("null")) {
+                    eventData.setGroupId(event.getGroupId());
+                }
+                if (event.getDaysRecurring() != null && !event.getDaysRecurring().equalsIgnoreCase("null")) {
+                    eventData.setDaysRecurring(event.getDaysRecurring());
+                }
+                if (event.getRecurEndDate() != null && !event.getRecurEndDate().equalsIgnoreCase("null")) {
+                    eventData.setRecurEndDate(event.getRecurEndDate());
+                }
+                if (event.getRecurStartDate() != null && !event.getRecurStartDate().equalsIgnoreCase("null")) {
+                    eventData.setRecurStartDate(event.getRecurStartDate());
+                }
+                if (event.getReminderTimeBefore() != null && !event.getReminderTimeBefore().equalsIgnoreCase("null")) {
+                    eventData.setReminderTimeBefore(event.getReminderTimeBefore());
+                }
                 eventData.setTitle(event.getTitle());
                 eventData.setStartDate(event.getStartDate());
                 eventData.setEndDate(event.getEndDate());
@@ -84,11 +200,75 @@ public class EventController {
                 }
                 eventData.setCreatedDate(event.getCreatedDate());
 
-
                 events.add(eventData);
             }
         }
-            return events;
+        List<EventData> eventsToDisplay = new ArrayList<>();
+        List<String> daysRecurring = new ArrayList<>();
+
+        for(EventData event : events){
+            if(event.getGroupId() == "" || event.getGroupId().isEmpty()){
+                eventsToDisplay.add(event);
+                continue;
+            }
+
+            LocalDate start = LocalDate.of( Integer.valueOf(event.getRecurStartDate().substring(0,4)) , Integer.valueOf(event.getRecurStartDate().substring(5,7)) , Integer.valueOf(event.getRecurStartDate().substring(8,10)) );
+            LocalDate stop = LocalDate.of( Integer.valueOf(event.getRecurEndDate().substring(0,4)) , Integer.valueOf(event.getRecurEndDate().substring(5,7)) , Integer.valueOf(event.getRecurEndDate().substring(8,10)) );
+
+            daysRecurring = Arrays.asList(event.getDaysRecurring().split(","));
+
+            if(daysRecurring.contains("0")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.SUNDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("1")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.MONDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("2")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.TUESDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("3")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.WEDNESDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("4")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.THURSDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("5")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.FRIDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+            if(daysRecurring.contains("6")){
+                LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.SATURDAY ) );
+                while( day.isBefore( stop ) || day.isEqual( stop ) ) {
+                    eventsToDisplay.add( generateNewEvent(event,day) );
+                    day = day.plusWeeks( 1 );
+                }
+            }
+        }
+
+            return eventsToDisplay;
         }
 
 
@@ -156,9 +336,36 @@ public class EventController {
 
     updatedEvent.setStartDate(eventData.getStartDate());
     updatedEvent.setEndDate(eventData.getEndDate());
-    updatedEvent.setEventColor(eventData.getEventColor());
-    updatedEvent.setReminder(eventData.getReminder());
-    updatedEvent.setDescription(eventData.getDescription());
+
+        if(eventData.getDescription() != null && !eventData.getDescription().equalsIgnoreCase("null")){
+            updatedEvent.setDescription(eventData.getDescription());
+        }
+
+        if(eventData.getEventColor() != null && !eventData.getEventColor().equalsIgnoreCase("null")){
+            updatedEvent.setEventColor(eventData.getEventColor());
+        }
+
+        if(eventData.getReminder() != null && !eventData.getReminder().equalsIgnoreCase("null")){
+            updatedEvent.setReminder(eventData.getReminder());
+        }
+
+        if(eventData.getReminderTimeBefore() != null && !eventData.getReminderTimeBefore().equalsIgnoreCase("null")) {
+            updatedEvent.setReminderTimeBefore(eventData.getReminderTimeBefore());
+        }
+        if(eventData.getRecurStartDate() != null && !eventData.getRecurStartDate().equalsIgnoreCase("null")) {
+            updatedEvent.setRecurStartDate(eventData.getRecurStartDate());
+        }
+        if(eventData.getDaysRecurring() != null && !eventData.getDaysRecurring().equalsIgnoreCase("null")) {
+            updatedEvent.setDaysRecurring(eventData.getDaysRecurring());
+        }
+        if(eventData.getRecurEndDate() != null && !eventData.getRecurEndDate().equalsIgnoreCase("null")) {
+            updatedEvent.setRecurEndDate(eventData.getRecurEndDate());
+        }
+        if(eventData.getGroupId() != null && !eventData.getGroupId().equalsIgnoreCase("null")) {
+            updatedEvent.setGroupId(eventData.getGroupId());
+        }
+
+
     updatedEvent.setTitle(eventData.getTitle());
     updatedEvent.setId(id);
 

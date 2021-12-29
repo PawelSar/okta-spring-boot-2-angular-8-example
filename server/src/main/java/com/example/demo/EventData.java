@@ -4,6 +4,52 @@ public class EventData {
 
     private Long id;
 
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getRecurStartDate() {
+        return recurStartDate;
+    }
+
+    public void setRecurStartDate(String recurStartDate) {
+        this.recurStartDate = recurStartDate;
+    }
+
+    public String getRecurEndDate() {
+        return recurEndDate;
+    }
+
+    public void setRecurEndDate(String recurEndDate) {
+        this.recurEndDate = recurEndDate;
+    }
+
+    public String getReminderTimeBefore() {
+        return reminderTimeBefore;
+    }
+
+    public void setReminderTimeBefore(String reminderTimeBefore) {
+        this.reminderTimeBefore = reminderTimeBefore;
+    }
+
+    public String getDaysRecurring() {
+        return daysRecurring;
+    }
+
+    public void setDaysRecurring(String daysRecurring) {
+        this.daysRecurring = daysRecurring;
+    }
+
+    private String groupId;
+    private String recurStartDate;
+    private String recurEndDate;
+    private String reminderTimeBefore;
+    private String daysRecurring;
+
     public String getReminder() {
         return reminder;
     }

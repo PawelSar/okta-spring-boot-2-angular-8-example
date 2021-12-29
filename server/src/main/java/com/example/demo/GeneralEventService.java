@@ -108,6 +108,24 @@ return eventRepository.getAllEventsByType(type);
         if(event.getDescription() != null && !event.getDescription().equalsIgnoreCase("null")) {
             eventData.setDescription(event.getDescription());
         }
+
+        if(event.getGroupId() != null && !event.getGroupId().equalsIgnoreCase("null")) {
+            eventData.setGroupId(event.getGroupId());
+        }
+        if(event.getRecurStartDate() != null && !event.getRecurStartDate().equalsIgnoreCase("null")) {
+            eventData.setRecurStartDate(event.getRecurStartDate());
+        }
+        if(event.getRecurEndDate() != null && !event.getRecurEndDate().equalsIgnoreCase("null")) {
+            eventData.setRecurEndDate(event.getRecurEndDate());
+        }
+        if(event.getDaysRecurring() != null && !event.getDaysRecurring().equalsIgnoreCase("null")) {
+            eventData.setDaysRecurring(event.getDaysRecurring());
+        }
+        if(event.getReminderTimeBefore() != null && !event.getReminderTimeBefore().equalsIgnoreCase("null")) {
+            eventData.setReminderTimeBefore(event.getReminderTimeBefore());
+        }
+
+
         eventData.setCreatedDate(event.getCreatedDate());
         return eventData;
     }
@@ -123,6 +141,23 @@ return eventRepository.getAllEventsByType(type);
         event.setTitle(eventData.getTitle());
         event.setCreator(eventData.getCreator());
         event.setStartDate(eventData.getStartDate());
+
+        if(eventData.getDaysRecurring() != null && !eventData.getDaysRecurring().equalsIgnoreCase("null")) {
+            event.setDaysRecurring(eventData.getDaysRecurring());
+        }
+        if(eventData.getRecurStartDate() != null && !eventData.getRecurStartDate().equalsIgnoreCase("null")) {
+            event.setRecurStartDate(eventData.getRecurStartDate());
+        }
+        if(eventData.getRecurEndDate() != null && !eventData.getRecurEndDate().equalsIgnoreCase("null")) {
+            event.setRecurEndDate(eventData.getRecurEndDate());
+        }
+        if(eventData.getReminderTimeBefore() != null && !eventData.getReminderTimeBefore().equalsIgnoreCase("null")) {
+            event.setReminderTimeBefore(eventData.getReminderTimeBefore());
+        }
+        if(eventData.getGroupId() != null && !eventData.getGroupId().equalsIgnoreCase("null")) {
+            event.setGroupId(eventData.getGroupId());
+        }
+
         if(eventData.getEventColor() != null && !eventData.getEventColor().equalsIgnoreCase("null")) {
             event.setEventColor(eventData.getEventColor());
         }
