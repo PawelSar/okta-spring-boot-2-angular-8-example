@@ -50,6 +50,16 @@ public class EventData {
     private String reminderTimeBefore;
     private String daysRecurring;
 
+    public String getWithoutDays() {
+        return withoutDays;
+    }
+
+    public void setWithoutDays(String withoutDays) {
+        this.withoutDays = withoutDays;
+    }
+
+    private String withoutDays;
+
     public String getReminder() {
         return reminder;
     }

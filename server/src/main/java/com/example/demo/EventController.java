@@ -29,7 +29,7 @@ public class EventController {
 
         List<EventData> eventsToDisplay = new ArrayList<>();
         List<String> daysRecurring = new ArrayList<>();
-
+        int plusWeeks = 1;
 
         List<EventData> eventData = eventService.getAllEvents();
 
@@ -39,6 +39,20 @@ public class EventController {
                 continue;
             }
 
+            if(event.getGroupId().contains("evenWeeks")){
+                plusWeeks = 2;
+            } else if(event.getGroupId().contains("thirdWeek")){
+                plusWeeks = 3;
+            } else if(event.getGroupId().contains("onceAMonth")){
+                plusWeeks = 4;
+            }
+
+            String removedDaysString = event.getWithoutDays();
+            if(removedDaysString == null){
+                removedDaysString = "";
+            }
+            List<String> daysRemoved = Arrays.asList(removedDaysString.split(","));
+
             LocalDate start = LocalDate.of( Integer.valueOf(event.getRecurStartDate().substring(0,4)) , Integer.valueOf(event.getRecurStartDate().substring(5,7)) , Integer.valueOf(event.getRecurStartDate().substring(8,10)) );
             LocalDate stop = LocalDate.of( Integer.valueOf(event.getRecurEndDate().substring(0,4)) , Integer.valueOf(event.getRecurEndDate().substring(5,7)) , Integer.valueOf(event.getRecurEndDate().substring(8,10)) );
 
@@ -47,54 +61,78 @@ public class EventController {
             if(daysRecurring.contains("0")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.SUNDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("1")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.MONDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("2")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.TUESDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("3")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.WEDNESDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("4")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.THURSDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("5")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.FRIDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("6")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.SATURDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
         }
         return eventsToDisplay;
+    }
+
+    private void checkAddEventToDisplay(List<String> daysRemoved, LocalDate day, EventData event, List<EventData> eventsToDisplay) {
+        if(!daysRemoved.contains(generateDayString(day))){
+            eventsToDisplay.add( generateNewEvent(event,day) );
+        }
+    }
+
+    private String generateDayString(LocalDate day) {
+        String dayOfMonth = "";
+        if(String.valueOf(day.getDayOfMonth()).length() == 2){
+            dayOfMonth = String.valueOf(day.getDayOfMonth());
+        } else {
+            dayOfMonth = "0"+String.valueOf(day.getDayOfMonth());
+        }
+
+        String monthOfYear = "";
+        if(String.valueOf(day.getMonthValue()).length() == 2){
+            monthOfYear = String.valueOf(day.getMonthValue());
+        } else {
+            monthOfYear = "0"+String.valueOf(day.getMonthValue());
+        }
+
+        return ""+day.getYear()+"-"+monthOfYear+"-"+dayOfMonth;
     }
 
     private EventData generateNewEvent(EventData event, LocalDate day) {
@@ -205,11 +243,21 @@ public class EventController {
         }
         List<EventData> eventsToDisplay = new ArrayList<>();
         List<String> daysRecurring = new ArrayList<>();
+        int plusWeeks = 1;
 
         for(EventData event : events){
             if(event.getGroupId() == "" || event.getGroupId().isEmpty()){
                 eventsToDisplay.add(event);
                 continue;
+            }
+            List<String> daysRemoved = Arrays.asList(event.getWithoutDays().split(","));
+
+            if(event.getGroupId().contains("evenWeeks")){
+                plusWeeks = 2;
+            } else if(event.getGroupId().contains("thirdWeek")){
+                plusWeeks = 3;
+            } else if(event.getGroupId().contains("onceAMonth")){
+                plusWeeks = 4;
             }
 
             LocalDate start = LocalDate.of( Integer.valueOf(event.getRecurStartDate().substring(0,4)) , Integer.valueOf(event.getRecurStartDate().substring(5,7)) , Integer.valueOf(event.getRecurStartDate().substring(8,10)) );
@@ -220,50 +268,50 @@ public class EventController {
             if(daysRecurring.contains("0")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.SUNDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("1")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.MONDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("2")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.TUESDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("3")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.WEDNESDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("4")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.THURSDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("5")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.FRIDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
             if(daysRecurring.contains("6")){
                 LocalDate day = start.with( TemporalAdjusters.nextOrSame( DayOfWeek.SATURDAY ) );
                 while( day.isBefore( stop ) || day.isEqual( stop ) ) {
-                    eventsToDisplay.add( generateNewEvent(event,day) );
-                    day = day.plusWeeks( 1 );
+                    checkAddEventToDisplay(daysRemoved, day, event, eventsToDisplay);
+                    day = day.plusWeeks( plusWeeks );
                 }
             }
         }
@@ -317,21 +365,6 @@ public class EventController {
      */
     @PutMapping("/event/{id}")
     public EventData updateEvent(@PathVariable Long id, final @RequestBody EventData eventData) throws PushoverException {
-
-//        PushoverClient client = new PushoverRestClient();
-//
-//        Status result = client.pushMessage(PushoverMessage.builderWithApiToken("au24m39a8e262t3n3uw7gs6o5xp8o4")
-//                .setUserId("utym8nw7j6gd2vyqk3ft4r3d5zsgwz")
-//                .setMessage("Wydarzenie: ["+ eventData.getTitle() + "] Zaczyna się: "+ eventData.getStartDate())
-//                .setPriority(MessagePriority.NORMAL) // HIGH|NORMAL|QUIET
-//                .setTitle("Kalendarz")
-//                .setUrl("http://31.179.37.99:4200/")
-//                .setTitleForURL("Kalendarz online")
-//                .setSound("magic")
-//                .build());
-//
-//        System.out.println(String.format("status: %d, request id: %s", result.getStatus(), result.getRequestId()));
-
     EventData updatedEvent = eventService.getOne(id);
 
     updatedEvent.setStartDate(eventData.getStartDate());
@@ -368,6 +401,57 @@ public class EventController {
 
     updatedEvent.setTitle(eventData.getTitle());
     updatedEvent.setId(id);
+
+        return eventService.saveEvent(updatedEvent);
+    }
+
+    @PutMapping("/updateRemovedEvents/{id}")
+    public EventData updateRemovedEvents(@PathVariable Long id, final @RequestBody EventData eventData) throws PushoverException {
+        EventData updatedEvent = eventService.getOne(id);
+
+//        updatedEvent.setStartDate(eventData.getStartDate());
+//        updatedEvent.setEndDate(eventData.getEndDate());
+
+        if(eventData.getDescription() != null && !eventData.getDescription().equalsIgnoreCase("null")){
+            updatedEvent.setDescription(updatedEvent.getDescription());
+        }
+
+        if(eventData.getEventColor() != null && !eventData.getEventColor().equalsIgnoreCase("null")){
+            updatedEvent.setEventColor(updatedEvent.getEventColor());
+        }
+
+        if(eventData.getReminder() != null && !eventData.getReminder().equalsIgnoreCase("null")){
+            updatedEvent.setReminder(updatedEvent.getReminder());
+        }
+
+        if(eventData.getReminderTimeBefore() != null && !eventData.getReminderTimeBefore().equalsIgnoreCase("null")) {
+            updatedEvent.setReminderTimeBefore(updatedEvent.getReminderTimeBefore());
+        }
+        if(eventData.getRecurStartDate() != null && !eventData.getRecurStartDate().equalsIgnoreCase("null")) {
+            updatedEvent.setRecurStartDate(updatedEvent.getRecurStartDate());
+        }
+        if(eventData.getDaysRecurring() != null && !eventData.getDaysRecurring().equalsIgnoreCase("null")) {
+            updatedEvent.setDaysRecurring(updatedEvent.getDaysRecurring());
+        }
+        if(eventData.getRecurEndDate() != null && !eventData.getRecurEndDate().equalsIgnoreCase("null")) {
+            updatedEvent.setRecurEndDate(updatedEvent.getRecurEndDate());
+        }
+        if(eventData.getGroupId() != null && !eventData.getGroupId().equalsIgnoreCase("null")) {
+            updatedEvent.setGroupId(updatedEvent.getGroupId());
+        }
+
+
+        updatedEvent.setTitle(updatedEvent.getTitle());
+        updatedEvent.setId(id);
+
+        String withoutDaysOld = updatedEvent.getWithoutDays();
+
+        if(withoutDaysOld == null){
+            withoutDaysOld = "";
+        }
+
+
+        updatedEvent.setWithoutDays(withoutDaysOld+","+eventData.getStartDate().substring(0,10));
 
         return eventService.saveEvent(updatedEvent);
     }

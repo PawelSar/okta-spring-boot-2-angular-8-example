@@ -125,6 +125,9 @@ return eventRepository.getAllEventsByType(type);
             eventData.setReminderTimeBefore(event.getReminderTimeBefore());
         }
 
+        if(event.getWithoutDays() != null && !event.getWithoutDays().equalsIgnoreCase("null")) {
+            eventData.setWithoutDays(event.getWithoutDays());
+        }
 
         eventData.setCreatedDate(event.getCreatedDate());
         return eventData;
@@ -168,6 +171,11 @@ return eventRepository.getAllEventsByType(type);
         if(eventData.getReminder() != null && !eventData.getReminder().equalsIgnoreCase("null")) {
             event.setReminder(eventData.getReminder());
         }
+
+        if(eventData.getWithoutDays() != null && !eventData.getWithoutDays().equalsIgnoreCase("null")) {
+            event.setWithoutDays(eventData.getWithoutDays());
+        }
+
         event.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
         return event;

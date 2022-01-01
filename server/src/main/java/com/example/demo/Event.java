@@ -14,6 +14,16 @@ public class Event {
     private String title;
     private String startDate;
 
+    public String getWithoutDays() {
+        return withoutDays;
+    }
+
+    public void setWithoutDays(String withoutDays) {
+        this.withoutDays = withoutDays;
+    }
+
+    private String withoutDays;
+
     public String getDescription() {
         return description;
     }
