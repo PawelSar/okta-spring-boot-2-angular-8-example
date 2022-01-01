@@ -86,6 +86,7 @@ return eventRepository.getAllEventsByType(type);
         return populateEventData( eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Customer not found")));
     }
 
+
     /**
      * Internal method to convert Customer JPA entity to the DTO object
      * for frontend data

@@ -18,6 +18,7 @@ public class Event {
         return withoutDays;
     }
 
+
     public void setWithoutDays(String withoutDays) {
         this.withoutDays = withoutDays;
     }

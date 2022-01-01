@@ -47,6 +47,7 @@ public class EventController {
                 plusWeeks = 4;
             }
 
+
             String removedDaysString = event.getWithoutDays();
             if(removedDaysString == null){
                 removedDaysString = "";
