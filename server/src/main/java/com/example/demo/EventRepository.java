@@ -8,7 +8,7 @@ import java.util.List;
 @Repository
 public interface EventRepository extends JpaRepository<Event,Long> {
 
-    @Query(value = "select * from db_calendar.Event where event_color = ?1", nativeQuery = true)
+    @Query(value = "select * from db_calendar.event where event_color = ?1", nativeQuery = true)
     List<Event> getAllEventsByType(String type);
 
 }

@@ -143,7 +143,14 @@ String shoppingList = shoppingListService.getAllEvents().get(0).getShoppingList(
         String listString = newList.stream().map(Object::toString)
                 .collect(Collectors.joining(","));
 
-        Long id = shoppingListService.getAllEvents().get(0).getId();
+Long id = 0L;
+
+        if(shoppingListService.getAllEvents().size() > 0 && shoppingListService.getAllEvents().get(0) != null){
+            id = shoppingListService.getAllEvents().get(0).getId();
+        } else {
+           id = 123L; 
+        }
+        
 
         ShoppingListData updatedEvent = shoppingListService.getOne(id);
 
@@ -156,8 +163,12 @@ String shoppingList = shoppingListService.getAllEvents().get(0).getShoppingList(
 
     @GetMapping("/loadShoppingList")
     public ShoppingListData loadZakupy() {
+ShoppingListData shoppingList = new ShoppingListData();
 
-        ShoppingListData shoppingList = shoppingListService.getAllEvents().get(0);
+if(shoppingListService.getAllEvents().size() > 0 && shoppingListService.getAllEvents().get(0) != null){
+    shoppingList = shoppingListService.getAllEvents().get(0);
+    } 
+        
 
         return shoppingList;
     }
