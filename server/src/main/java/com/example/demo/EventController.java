@@ -1,15 +1,24 @@
 package com.example.demo;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import net.pushover.client.*;
+import org.apache.commons.io.IOUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.net.URL;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
 
 @RestController
 @RequestMapping("/events")
@@ -111,6 +120,40 @@ public class EventController {
         }
         return eventsToDisplay;
     }
+
+    @GetMapping("/news")
+    public String getNews() throws Exception {
+
+        List<NewsData> newsToLoad = new ArrayList<>();
+        URL url = new URL("https://wykop.pl/rss");
+        HttpURLConnection request1 = (HttpURLConnection) url.openConnection();
+        request1.setRequestMethod("GET");
+        request1.connect();
+        InputStream is = request1.getInputStream();
+        BufferedReader bf_reader = new BufferedReader(new InputStreamReader(is));
+        String responseData = IOUtils.toString(bf_reader);
+
+        XmlMapper xmlMapper = new XmlMapper();
+        xmlMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+
+        RSS value = xmlMapper.readValue(responseData, RSS.class);
+        for(Item items : value.getChannel().items){
+
+            NewsData nd = new NewsData();
+            nd.setNewsTitle(items.getTitle());
+            nd.setNewsContent(items.getDescription().substring(items.getDescription().indexOf("<br/>")+5));
+            newsToLoad.add(nd);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(newsToLoad);
+    }
+
+    private static Document loadTestDocument(String url) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        return factory.newDocumentBuilder().parse(new URL(url).openStream());
+    }
+
 
     private void checkAddEventToDisplay(List<String> daysRemoved, LocalDate day, EventData event, List<EventData> eventsToDisplay) {
         if(!daysRemoved.contains(generateDayString(day))){
